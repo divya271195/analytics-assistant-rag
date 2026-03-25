@@ -1,0 +1,13 @@
+chunking:
+  chunk_size: 800
+  overlap: 120
+
+retrieval:
+  top_k: 5
+
+embedding:
+  model_name: sentence-transformers/all-MiniLM-L6-v2
+
+output:
+  include_sources: true
+  include_assumptions: true
