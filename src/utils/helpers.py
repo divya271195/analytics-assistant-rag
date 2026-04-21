@@ -15,5 +15,5 @@ def iter_supported_files(root_dir: str | Path) -> List[Path]:
     return sorted(files)
 
 
-def truncate(text: str, size: int = 800) -> str:
+def truncate(text: str, size: int = 500) -> str:
     return text if len(text) <= size else text[: size - 3] + "..."

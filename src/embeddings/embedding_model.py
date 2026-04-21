@@ -12,7 +12,15 @@ class EmbeddingModel:
         self.model = SentenceTransformer(model_name)
 
     def encode_texts(self, texts: List[str]) -> np.ndarray:
-        return self.model.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
+        if not texts:
+            raise ValueError("encode_texts received an empty list. No chunks were produced.")
+        arr = self.model.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
+        if arr.ndim == 1:
+            arr = np.expand_dims(arr, axis=0)
+        return arr
 
     def encode_query(self, query: str) -> np.ndarray:
-        return self.model.encode([query], convert_to_numpy=True, normalize_embeddings=True)
+        arr = self.model.encode([query], convert_to_numpy=True, normalize_embeddings=True)
+        if arr.ndim == 1:
+            arr = np.expand_dims(arr, axis=0)
+        return arr

@@ -16,7 +16,7 @@ class NoLLMClient:
     def generate(self, prompt: str) -> str:
         return (
             "LLM provider is not configured. Retrieval worked, but generation is disabled.\n\n"
-            "Set LLM_PROVIDER in .env to one of: anthropic, openai, ollama."
+            "Set LLM_PROVIDER in .env to one of: anthropic, openai, mistral, ollama."
         )
 
 
@@ -51,7 +51,7 @@ class OpenAICompatibleClient:
     def generate(self, prompt: str) -> str:
         resp = self.client.chat.completions.create(
             model=self.model,
-            temperature=0.1,
+            temperature=0.6,
             messages=[{"role": "user", "content": prompt}],
         )
         return resp.choices[0].message.content or ""
@@ -62,17 +62,27 @@ class OllamaClient:
         self.model = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
 
     def generate(self, prompt: str) -> str:
-        resp = ollama.chat(model=self.model, messages=[{"role": "user", "content": prompt}])
+        resp = ollama.chat(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+        )
         return resp["message"]["content"]
-
 
 
 def get_llm_client() -> LLMClient:
     provider = os.getenv("LLM_PROVIDER", "none").lower()
+
     if provider == "anthropic":
         return AnthropicClient()
+
     if provider == "openai":
         return OpenAICompatibleClient()
+
+    if provider == "mistral":
+        # Reuse the OpenAI-compatible client, but it will read Mistral settings
+        return OpenAICompatibleClient()
+
     if provider == "ollama":
         return OllamaClient()
+
     return NoLLMClient()

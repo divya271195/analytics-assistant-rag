@@ -17,7 +17,7 @@ class Chunk:
 
 
 class TextChunker:
-    def __init__(self, chunk_size: int = 800, overlap: int = 120):
+    def __init__(self, chunk_size: int = 512, overlap: int = 120):
         if chunk_size <= overlap:
             raise ValueError("chunk_size must be greater than overlap")
         self.chunk_size = chunk_size
@@ -34,7 +34,14 @@ class TextChunker:
                         title=doc.title,
                         source_path=doc.source_path,
                         text=chunk_text,
-                        metadata={**doc.metadata, "chunk_index": str(idx)},
+                        metadata={**doc.metadata,
+                                  "chunk_index": str(idx),
+                                  "title": doc.title,
+                                  "source_path": doc.source_path,
+                                  "doc_id": doc.doc_id,
+                                  "section_title": "",
+                                  "page_number": ""
+                                  },
                     )
                 )
         return chunks
@@ -43,14 +50,21 @@ class TextChunker:
         text = text.strip()
         if not text:
             return []
-        chunks: List[str] = []
-        start = 0
-        while start < len(text):
-            end = min(start + self.chunk_size, len(text))
-            chunk = text[start:end].strip()
-            if chunk:
-                chunks.append(chunk)
-            if end == len(text):
-                break
-            start = end - self.overlap
+
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+        chunks = []
+        current = []
+
+        for para in paragraphs:
+            candidate = "\n\n".join(current + [para])
+            if len(candidate) <= self.chunk_size:
+                current.append(para)
+            else:
+                if current:
+                    chunks.append("\n\n".join(current))
+                current = [para]
+
+        if current:
+            chunks.append("\n\n".join(current))
+
         return chunks

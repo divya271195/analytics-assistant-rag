@@ -6,7 +6,7 @@ from src.pipeline import RagPipeline
 from src.generation.output_formatter import format_retrieval_results
 from src.utils.config import load_environment
 
-# for debug purposes to retrieve the chunks
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--index-dir", required=True)
@@ -16,8 +16,8 @@ def main() -> None:
     load_environment()
     pipeline = RagPipeline()
     pipeline.load_index(args.index_dir)
-    results = pipeline.retrieve(args.question)
-    print(format_retrieval_results(results))
+    answer = pipeline.discovery(args.question)
+    print(answer)
 
 
 if __name__ == "__main__":

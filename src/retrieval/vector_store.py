@@ -18,6 +18,17 @@ class FaissVectorStore:
         self.texts: List[str] = []
 
     def build(self, embeddings: np.ndarray, chunks: List[Chunk]) -> None:
+        if embeddings.size == 0:
+            raise ValueError("Embeddings are empty.")
+        if embeddings.ndim == 1:
+            embeddings = np.expand_dims(embeddings, axis=0)
+        if embeddings.ndim != 2:
+            raise ValueError(f"Embeddings must be 2D, got shape {embeddings.shape}")
+        if len(chunks) != embeddings.shape[0]:
+            raise ValueError(
+                f"Mismatch between chunks ({len(chunks)}) and embeddings ({embeddings.shape[0]})"
+            )
+
         dim = embeddings.shape[1]
         self.index = faiss.IndexFlatIP(dim)
         self.index.add(embeddings.astype("float32"))
