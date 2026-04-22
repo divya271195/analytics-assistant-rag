@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Dict, List
+
+_log = logging.getLogger(__name__)
 
 from src.embeddings.embedding_model import EmbeddingModel
 from src.generation.code_generator import RagGenerator
@@ -27,7 +30,10 @@ class RagPipeline:
             self.retriever = Retriever(
                 embedding_model=self.embedding_model,
                 vector_store=self.vector_store,
+                entity_store=self.entity_store,
                 top_k=self.config["retrieval"]["top_k"],
+                initial_k=self.config["retrieval"].get("initial_k", 25),
+                entity_threshold=self.config["retrieval"].get("entity_threshold", 0.45),
             )
             self.generator = RagGenerator(get_llm_client())
 
@@ -60,10 +66,18 @@ class RagPipeline:
         if not chunks:
             raise ValueError(f"No chunks were produced from documents in {docs_dir}")
 
+        image_exts = {".jpg", ".jpeg"}
+        img_chunks = [c for c in chunks if c.metadata.get("extension") in image_exts]
+        if img_chunks:
+            _log.debug("[INDEX] image chunks created: %d (from %d image file(s))",
+                       len(img_chunks),
+                       len({c.doc_id for c in img_chunks}))
+
         embeddings = self.embedding_model.encode_texts([chunk.text for chunk in chunks])
 
         self.vector_store.build(embeddings, chunks)
         self.vector_store.save(index_dir)
+        _log.debug("[INDEX] total chunks indexed: %d", len(chunks))
 
         entity_records = self.entity_extractor.extract_from_documents(cleaned_docs)
         self.entity_store.build(entity_records)

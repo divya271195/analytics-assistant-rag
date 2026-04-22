@@ -13,11 +13,8 @@ Rules:
 Quote or paraphrase only what is supported by the retrieved context.
 3. End with a "sources" section listing the source title, path and chunk ID used.
 5. If multiple sources support the answer mention the most relevant ones.
-
-Out
-Use only the provided context.
-If the answer is not present, say that clearly.
-Provide a concise answer followed by source references.
+6. Use only the provided context. If the answer is not present, say that clearly.
+7. Provide a concise answer followed by source references.
 """
 
 CODEGEN_PROMPT = """You are a senior data engineering assistant.
@@ -39,13 +36,17 @@ def build_context(results: List[Dict]) -> str:
     blocks = []
     for idx, item in enumerate(results, start=1):
         meta = item["metadata"]
-        blocks.append(
-            f"[Source {idx}]\n"
-            f"Title: {meta.get('title', '')}\n"
-            f"Path: {meta.get('source_path', '')}\n"
-            f"Chunk ID: {meta.get('chunk_id', '')}\n"
-            f"Content:\n{item['text']}"
-        )
+        lines = [
+            f"[Source {idx}]",
+            f"Title: {meta.get('title', '')}",
+            f"Path: {meta.get('source_path', '')}",
+            f"Chunk ID: {meta.get('chunk_id', '')}",
+        ]
+        matched_entity = item.get("matched_entity", "")
+        if matched_entity:
+            lines.append(f"Matched Table/Entity: {matched_entity}")
+        lines.append(f"Content:\n{item['text']}")
+        blocks.append("\n".join(lines))
     return "\n\n".join(blocks)
 
 
