@@ -51,7 +51,7 @@ class OpenAICompatibleClient:
     def generate(self, prompt: str) -> str:
         resp = self.client.chat.completions.create(
             model=self.model,
-            temperature=0.6,
+            temperature=0.2,
             messages=[{"role": "user", "content": prompt}],
         )
         return resp.choices[0].message.content or ""
