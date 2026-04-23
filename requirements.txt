@@ -16,4 +16,3 @@ pytest>=8.3.2
 fastapi>=0.112.0
 uvicorn>=0.30.5
 streamlit
-mistralai
