@@ -3,7 +3,14 @@ from __future__ import annotations
 from typing import Dict, List
 
 
-DISCOVERY_PROMPT = """You are a grounded knowledge discovery assistant.
+
+DISCOVERY_PROMPT = """You are a knowledge discovery assistant.
+Use only the provided context.
+If the answer is not present, say that clearly.
+Provide a concise answer followed by source references.
+"""
+
+DISCOVERY_PROMPT_v2 = """You are a grounded knowledge discovery assistant.
 You must answer ONLY from the provided context.
 Do not use outside knowledge.
 If the answer is not fully supported by the context, say: "Insufficient Information in the provided sources."

@@ -43,7 +43,7 @@ def main() -> None:
         print("  3. Index was built before OCR support was added — rebuild with:")
         print("       python scripts/build_index.py --docs-dir <your-docs-dir> --index-dir data/index")
         return
-
+    client.close()
     for i, p in enumerate(img_points, 1):
         pl = p.payload
         text = pl.get("text", "")

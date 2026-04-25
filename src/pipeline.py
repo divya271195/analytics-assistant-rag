@@ -13,7 +13,7 @@ from src.ingestion.document_cleaner import DocumentCleaner
 from src.ingestion.loaders import DocumentLoader, RawDocument
 from src.processing.chunker import TextChunker
 from src.retrieval.retriever import Retriever
-from src.retrieval.vector_store import FaissVectorStore
+from src.retrieval.vector_store import VectorStore
 from src.utils.config import load_yaml
 from src.processing.entity_extractor import EntityExtractor
 from src.retrieval.entity_store import EntityStore
@@ -24,7 +24,7 @@ class RagPipeline:
     def __init__(self, app_config_path: str = "configs/app_config.yaml"):
             self.config = load_yaml(app_config_path)
             self.embedding_model = EmbeddingModel(self.config["embedding"]["model_name"])
-            self.vector_store = FaissVectorStore()
+            self.vector_store = VectorStore()
             self.entity_extractor = EntityExtractor()
             self.entity_store = EntityStore()
             self.retriever = Retriever(

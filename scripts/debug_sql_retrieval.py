@@ -35,14 +35,14 @@ def main() -> None:
 
     from src.utils.config import load_yaml
     from src.embeddings.embedding_model import EmbeddingModel
-    from src.retrieval.vector_store import FaissVectorStore
+    from src.retrieval.vector_store import VectorStore
     from src.retrieval.reranker import CrossEncoderReranker
     from src.retrieval.entity_store import EntityStore
     from src.generation.prompt_builder import build_context, build_codegen_prompt
 
     config = load_yaml("configs/app_config.yaml")
     embedding_model = EmbeddingModel(config["embedding"]["model_name"])
-    vector_store = FaissVectorStore()
+    vector_store = VectorStore()
     vector_store.load(args.index_dir)
     entity_store = EntityStore()
     entity_store.load(args.index_dir)
@@ -151,7 +151,9 @@ def main() -> None:
     # ------------------------------------------------------------------ #
     # 8. Diagnosis summary
     # ------------------------------------------------------------------ #
+    client.close()
     separator("8. DIAGNOSIS SUMMARY")
+
     if not raw_rows:
         print("  CRITICAL: Zero results from vector search. Index is empty or not built.")
     elif not matching:
